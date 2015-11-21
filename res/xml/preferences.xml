@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <SeekBarPreference
+        android:key="roiWidth"
+		android:max="100"
+    	android:defaultValue="50"
+		android:summary="% of image width used for sign detection."
+		android:title="Search area width"/>
+
+    <SeekBarPreference
+        android:key="roiHeight"
+		android:max="100"
+    	android:defaultValue="50"
+		android:summary="% of image height used for sign detection."
+		android:title="Search area height"/>    
+    
+</PreferenceScreen>

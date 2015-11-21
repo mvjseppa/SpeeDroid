@@ -26,7 +26,7 @@ bool detectFalsePositives(Mat signCandidate);
 static Mat detectedSigns[3];
 
 extern "C" {
-JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba);
+JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba, jint roiWidth, jint roiHeight);
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(void);
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void);
 
@@ -44,7 +44,7 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void)
 	detectedSigns[2].release();
 }
 
-JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba)
+JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba, jint roiWidth, jint roiHeight)
 {
     Mat& rgb = *(Mat*)addrRgba;
 
@@ -54,8 +54,8 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 
     //We do the processing for to regions of interest.
     //Roi dimensions are defined here.
-    const unsigned int roiW = 480;
-    const unsigned int roiH = 480;
+    unsigned int roiW = (unsigned int)(rgb.cols/2 * (roiWidth / 100.0));
+    unsigned int roiH = (unsigned int)(rgb.rows/2 * (roiHeight / 100.0));
 
     static SimpleTimer resultCooldown = SimpleTimer();
 
@@ -63,12 +63,14 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 
     if(rgb.cols < 2*roiW || rgb.rows < roiH) return;
 
-    //LOGD("%d, %d", rgb.cols, rgb.rows);
+    //LOGD("rgb: %d, %d", rgb.cols, rgb.rows);
 
     //Copy the rois from input image
     mainRoiImg = Mat::zeros(Size(2*roiW,roiH), CV_8UC4);
 	rgb(Rect(0,0,roiW,roiH)).copyTo(mainRoiImg(Rect(0,0,roiW,roiH)));
 	rgb(Rect(rgb.cols-roiW, 0, roiW, roiH)).copyTo(mainRoiImg(Rect(roiW,0,roiW,roiH)));
+
+	//LOGD("mainroi: %d, %d", mainRoiImg.cols, mainRoiImg.rows);
 
 	//median blur on the rois to remove noise but preserve edges
     medianBlur(mainRoiImg, mainRoiImg, 3);
@@ -86,7 +88,7 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 			c.center.x = (c.center.x - roiW) + (rgb.cols - roiW);
 		}
 
-		//LOGD("%d,%d,%d", c.center.x, c.center.y, c.radius);
+		LOGD("%d,%d,%d", c.center.x, c.center.y, c.radius);
 
 		Point displace(c.radius, c.radius);
 		Rect roiSign(c.center-displace, c.center+displace);

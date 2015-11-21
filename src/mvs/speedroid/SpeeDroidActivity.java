@@ -1,5 +1,6 @@
 package mvs.speedroid;
 
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
@@ -11,36 +12,27 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 //import org.opencv.imgproc.Imgproc;
 
+
+
 import mvs.speedroid.R;
-import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+//import android.app.Activity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
-public class SpeeDroidActivity extends Activity implements CvCameraViewListener2 {
-    private static final String    TAG = "OCVSample::Activity";
+public class SpeeDroidActivity extends AppCompatActivity implements CvCameraViewListener2 {
+    private static final String    TAG = "SpeeDroid::Activity";
 
-    /*
-    private static final int       VIEW_MODE_RGBA     = 0;
-    private static final int       VIEW_MODE_GRAY     = 1;
-    private static final int       VIEW_MODE_CANNY    = 2;
-    */
-    
-    private static final int       VIEW_MODE_TRAFFIC_SIGN = 0;
-
-    private int                    mViewMode;
-    private Mat                    mRgba;
-    private Mat                    mIntermediateMat;
-    private Mat                    mGray;
-
-    private MenuItem               mItemPreviewRGBA;
-    private MenuItem               mItemPreviewGray;
-    private MenuItem               mItemPreviewCanny;
-    private MenuItem               mItemPreviewFeatures;
+    private Mat                    lastFrame;
 
     private CameraBridgeViewBase   mOpenCvCameraView;
+    private SharedPreferences	   speeDroidPrefs;
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -54,6 +46,8 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
                     System.loadLibrary("speedroid");
 
                     InitJniPart();
+                    
+                    mOpenCvCameraView.enableFpsMeter();
                     mOpenCvCameraView.enableView();
                 } break;
                 default:
@@ -74,21 +68,13 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
         Log.i(TAG, "called onCreate");
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setContentView(R.layout.speedroid_main_view);
 
-        setContentView(R.layout.tutorial2_surface_view);
-
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.tutorial2_activity_surface_view);
+        speeDroidPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        
+        
+        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.speedroid_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Log.i(TAG, "called onCreateOptionsMenu");
-        /*mItemPreviewRGBA = menu.add("Preview RGBA");
-        mItemPreviewGray = menu.add("Preview GRAY");
-        mItemPreviewCanny = menu.add("Canny");*/
-        mItemPreviewFeatures = menu.add("Traffic sign detect");
-        return true;
     }
 
     @Override
@@ -114,69 +100,39 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
     }
 
     public void onCameraViewStarted(int width, int height) {
-        mRgba = new Mat(height, width, CvType.CV_8UC4);
-        mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
-        mGray = new Mat(height, width, CvType.CV_8UC1);
+        lastFrame = new Mat(height, width, CvType.CV_8UC4);
     }
 
     public void onCameraViewStopped() {
-        mRgba.release();
-        mGray.release();
-        mIntermediateMat.release();
+        lastFrame.release();
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        final int viewMode = mViewMode;
-        switch (viewMode) {
-        /*case VIEW_MODE_GRAY:
-            // input frame has gray scale format
-            Imgproc.cvtColor(inputFrame.gray(), mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
-            break;
-        case VIEW_MODE_RGBA:
-            // input frame has RBGA format
-            mRgba = inputFrame.rgba();
-            break;
-        case VIEW_MODE_CANNY:
-            // input frame has gray scale format
-            mRgba = inputFrame.rgba();
-            Imgproc.Canny(inputFrame.gray(), mIntermediateMat, 80, 100);
-            Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA, 4);
-            break;
-        */
-        case VIEW_MODE_TRAFFIC_SIGN:
-            // input frame has RGBA format
-            mRgba = inputFrame.rgba();
-            Core.flip(mRgba, mRgba, -1);
-            
-            //mGray = inputFrame.gray();
-            ProcessImage(mRgba.getNativeObjAddr());
-            break;
-        }
-
-        return mRgba;
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
-
-        if (item == mItemPreviewFeatures) {
-            mViewMode = VIEW_MODE_TRAFFIC_SIGN;
-        }
         
-        /*
-        if (item == mItemPreviewRGBA) {
-            mViewMode = VIEW_MODE_RGBA;
-        } else if (item == mItemPreviewGray) {
-            mViewMode = VIEW_MODE_GRAY;
-        } else if (item == mItemPreviewCanny) {
-            mViewMode = VIEW_MODE_CANNY;
-        } 
-        */
+        // input frame has RGBA format
+        lastFrame = inputFrame.rgba();
+        Core.flip(lastFrame, lastFrame, -1);
+        
+        int roiWidth = speeDroidPrefs.getInt("roiWidth", 0);
+        int roiHeight = speeDroidPrefs.getInt("roiHeight", 0);
+        
+        Log.i(TAG, "ROI size in prefs: " + Integer.toString(roiWidth) + "x" + Integer.toString(roiHeight));
+        
+        ProcessImage(lastFrame.getNativeObjAddr(), roiWidth, roiHeight);
 
-        return true;
+        return lastFrame;
     }
-
-    public native void ProcessImage(long matAddrRgba);
+    
+    
+    public void settingsButtonClicked(View view){
+    	Log.i(TAG, "Settings button clicked!");
+    	
+    	Intent i = new Intent(this, SpeeDroidSettingsActivity.class);
+    	startActivity(i);
+    	
+    }
+    
+    public native void ProcessImage(long matAddrRgba, int roiWidth, int roiHeight);
     public native void InitJniPart();
     public native void DestroyJniPart();
 }
