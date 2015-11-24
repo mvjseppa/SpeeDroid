@@ -12,8 +12,9 @@ The detection is based on color filtering and a RANSAC circle detection algorith
 Due to limitations in mobile phone cameras the detection works best in good lightning conditions and on low driving speeds.
 
 Possible future features and improvements:
+-Optimize the detection algorithm to improve framerate
 -Improve camera focus and exposure settings
--Sign classification based on 
+-Sign classification based on a feature detection algorithm
 
 
 
