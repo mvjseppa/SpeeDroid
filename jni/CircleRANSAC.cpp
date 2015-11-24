@@ -1,8 +1,12 @@
 /*
- * CircleRANSAC.cpp
+ * SpeeDroid
+ * Speed sign detector for Android
  *
- *  Created on: 24 Oct 2015
- *      Author: Mikko
+ * Copyright (c) 2015, Mikko Seppälä
+ * All rights reserved.
+ *
+ * See LICENSE.md file for licensing details.
+ *
  */
 
 

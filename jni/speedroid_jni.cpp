@@ -1,3 +1,14 @@
+/*
+ * SpeeDroid
+ * Speed sign detector for Android
+ *
+ * Copyright (c) 2015, Mikko Seppälä
+ * All rights reserved.
+ *
+ * See LICENSE.md file for licensing details.
+ *
+ */
+
 #include <jni.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -240,8 +251,6 @@ void findFeatures(Mat& img){
 
 	medianBlur(gray, gray, 5);
     Canny(gray, gray, 80, 100, 5);
-
-    //resize(gray, gray, Size(400, 400));
 
     FastFeatureDetector detector(50);
     detector.detect(gray, features);

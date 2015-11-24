@@ -1,5 +1,15 @@
-package mvs.speedroid;
+/* 
+ * SpeeDroid
+ * Speed sign detector for Android
+ * 
+ * Copyright (c) 2015, Mikko Seppälä
+ * All rights reserved.
+ * 
+ * See LICENSE.md file for licensing details.
+ * 
+ */
 
+package mvs.speedroid;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -10,21 +20,17 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
-//import org.opencv.imgproc.Imgproc;
-
-
 
 import mvs.speedroid.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
-//import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
 
 public class SpeeDroidActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String    TAG = "SpeeDroid::Activity";
