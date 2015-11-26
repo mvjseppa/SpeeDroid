@@ -21,16 +21,13 @@
 #include "debugprint.hpp"
 #include "SimpleTimer.hpp"
 #include "CircleRANSAC.hpp"
+#include "speedroidutils.hpp"
 
 using namespace std;
 using namespace cv;
 
-void limitRoiToImg(Rect &roi, const Mat& img);
 void updateDetectedSigns(Mat& newSign);
 void drawDetectedSigns(Mat& img);
-void findRed(Mat& src, Mat& dst);
-void findYellow(Mat& src, Mat& dst);
-void findBlack(Mat& src, Mat& dst);
 void findFeatures(Mat& img);
 bool detectFalsePositives(Mat signCandidate);
 
@@ -77,7 +74,7 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
     //We create a ROI on both sides of the image to scan both sides of the road.
     //Both ROIs have same dimensions.
     unsigned int roiW = (unsigned int)(rgb.cols/2 * (roiWidth / 100.0));
-    unsigned int roiH = (unsigned int)(rgb.rows/2 * (roiHeight / 100.0));
+    unsigned int roiH = (unsigned int)(rgb.rows * (roiHeight / 100.0));
 
     //Timer for cooldown after successful detection
     static SimpleTimer resultCooldown = SimpleTimer();
@@ -118,8 +115,8 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 		Point displace(c.radius, c.radius);
 		Rect roiSign(c.center-displace, c.center+displace);
 
-		limitRoiToImg(roiSign, rgb);
-		cropped = rgb(roiSign);
+		safeCrop(rgb, cropped, roiSign);
+
 
 		//update results if the sign candidate is accepted and
 		//2 seconds has elapsed since last detection
@@ -188,35 +185,6 @@ bool detectFalsePositives(Mat signCandidate){
 	return retval;
 }
 
-void findRed(Mat& src, Mat& dst){
-
-	Mat hsv, bin1, bin2;
-
-    cvtColor(src, hsv, COLOR_RGB2HSV);
-    inRange(hsv, Scalar(0, 100, 100), Scalar(10,255,255), bin1);
-    inRange(hsv, Scalar(170, 100, 100), Scalar(179,255,255), bin2);
-
-    bitwise_or(bin1, bin2, dst);
-
-    hsv.release();
-    bin1.release();
-    bin2.release();
-}
-
-void findYellow(Mat& src, Mat& dst){
-	Mat hsv;
-    cvtColor(src, hsv, COLOR_RGB2HSV);
-    inRange(hsv, Scalar(15, 60, 80), Scalar(35,255,255), dst);
-    hsv.release();
-}
-
-void findBlack(Mat& src, Mat& dst){
-	Mat hsv;
-    cvtColor(src, hsv, COLOR_RGB2HSV);
-    inRange(hsv, Scalar(0,0,0), Scalar(180,255,100), dst);
-    hsv.release();
-}
-
 void updateDetectedSigns(Mat& newSign){
 	resize(detectedSigns[1], detectedSigns[2], Size(100, 100));
 	resize(detectedSigns[0], detectedSigns[1], Size(200, 200));
@@ -243,16 +211,6 @@ void drawDetectedSigns(Mat& img){
 	detectedSigns[0].copyTo(img(roiSign), mask);
 
 	mask.release();
-}
-
-void limitRoiToImg(Rect &roi, const Mat& img){
-	if(roi.x < 0) roi.x = 0;
-	if(roi.y < 0) roi.y = 0;
-	if(roi.width < 0) roi.width = 0;
-	if(roi.height < 0) roi.height = 0;
-	if(roi.x+roi.width > img.cols) roi.width = img.cols-roi.x;
-	if(roi.y+roi.height > img.rows) roi.height = img.rows-roi.y;
-	return;
 }
 
 void findFeatures(Mat& img){

@@ -1,12 +1,11 @@
-obj/local/armeabi-v7a/objs-debug/speedroid/speedroid_jni.o: \
- jni/speedroid_jni.cpp \
- D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/jni.h \
- D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs.h \
- D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs_elf.h \
- D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/android/api-level.h \
+obj/local/armeabi-v7a/objs-debug/speedroid/speedroidutils.o: \
+ jni/speedroidutils.cpp \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/core.hpp \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/types_c.h \
  D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/assert.h \
+ D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs.h \
+ D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs_elf.h \
+ D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/android/api-level.h \
  D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/stdlib.h \
  D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/string.h \
  D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/malloc.h \
@@ -46,28 +45,19 @@ obj/local/armeabi-v7a/objs-debug/speedroid/speedroid_jni.o: \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/imgproc/imgproc.hpp \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/imgproc/types_c.h \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/core_c.h \
- D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/features2d/features2d.hpp \
- D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/flann/miniflann.hpp \
- D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/flann/defines.h \
- D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/flann/config.h \
- D:/NVPACK/android-ndk-r10d/sources/cxx-stl/gnu-libstdc++/4.8/include/ctime \
- jni/debugprint.hpp \
- D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/android/log.h \
- jni/SimpleTimer.hpp jni/CircleRANSAC.hpp jni/speedroidutils.hpp
-
-D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/jni.h:
-
-D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs.h:
-
-D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs_elf.h:
-
-D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/android/api-level.h:
+ jni/speedroidutils.hpp
 
 D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/core.hpp:
 
 D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/types_c.h:
 
 D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/assert.h:
+
+D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs.h:
+
+D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/sys/cdefs_elf.h:
+
+D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/android/api-level.h:
 
 D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/stdlib.h:
 
@@ -146,23 +136,5 @@ D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/imgproc/imgpr
 D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/imgproc/types_c.h:
 
 D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/core_c.h:
-
-D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/features2d/features2d.hpp:
-
-D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/flann/miniflann.hpp:
-
-D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/flann/defines.h:
-
-D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/flann/config.h:
-
-D:/NVPACK/android-ndk-r10d/sources/cxx-stl/gnu-libstdc++/4.8/include/ctime:
-
-jni/debugprint.hpp:
-
-D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/android/log.h:
-
-jni/SimpleTimer.hpp:
-
-jni/CircleRANSAC.hpp:
 
 jni/speedroidutils.hpp:

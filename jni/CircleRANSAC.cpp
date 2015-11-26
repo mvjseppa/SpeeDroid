@@ -17,8 +17,21 @@
 #include <vector>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "CircleRANSAC.hpp"
+#include "speedroidutils.hpp"
 
-bool CircleRANSAC(Mat& img, CircleType &result){
+/*
+ * RANSAC style circle detection algorithm
+ *
+ * PARAMS:
+ * Mat& img				-	binary source image
+ * CicleType& result	-	possible result circle
+ *
+ * RETURNS:
+ * bool					-	true if cirlcle found
+ * 							false if no circle or error occcurs
+ *
+ */
+bool CircleRANSAC(Mat& img, CircleType& result){
 
 	const static unsigned int minRadius = 15;
 	const static unsigned int maxRadius = 100;
@@ -51,6 +64,7 @@ bool CircleRANSAC(Mat& img, CircleType &result){
 			break;
 		}
 
+		//Try to construct a circle using the three random points
 		if(ConstructCircle(pointData[0], pointData[1], pointData[2], c) == false){
 			//get new samples if circle cannot be formed
 			continue;
@@ -64,14 +78,19 @@ bool CircleRANSAC(Mat& img, CircleType &result){
 			continue;
 		}
 
-		//confirm circle
-		//check percentage of candidate circle pixels that are white in the original image
-		//TODO: crop to optimize?
+		//Check percentage of candidate circle pixels that are white in the original image
 		inliers.clear();
-		Mat circleCandidate = Mat::zeros(edge.rows, edge.cols, CV_8UC1);
+
+		int cropSize = c.radius + 2;
+		Rect rectToCrop(c.center.x - cropSize, c.center.y - cropSize, cropSize*2, cropSize*2);
+		Mat cropped;
+
+		safeCrop(edge, cropped, rectToCrop);
+
+		Mat circleCandidate = Mat::zeros(cropped.rows, cropped.cols, CV_8UC1);
 		circle(circleCandidate, c.center, c.radius, 255, 3);
 
-		bitwise_and(circleCandidate, edge, circleCandidate);
+		bitwise_and(circleCandidate, cropped, circleCandidate);
 
 		//OpenCV bug:
 		//Set the pixel 0,0 to 255, as findNonZero will crash if all pixels are 0.
@@ -79,6 +98,7 @@ bool CircleRANSAC(Mat& img, CircleType &result){
 		findNonZero(circleCandidate, inliers);
 
 		circleCandidate.release();
+		cropped.release();
 
 		float confidence = inliers.size()/(2 * c.radius * M_PI);
 
@@ -107,8 +127,16 @@ bool CircleRANSAC(Mat& img, CircleType &result){
 	return retval;
 }
 
-//select n random samples from vector v and place them to the beginning
-//return true on success and false on error.
+/*
+ * Select n random samples from vector v and place them to the beginning of v
+ *
+ * PARAMS:
+ * vector<T>& v		-	vector to process
+ * size_t n			-	number of random items to pick
+ *
+ * RETURNS:
+ * bool				-	true on success and false on error.
+ */
 template <typename T> bool pickRandomSamples(vector<T> &v, size_t n){
 
 	size_t items = v.size();
@@ -131,9 +159,17 @@ template <typename T> bool pickRandomSamples(vector<T> &v, size_t n){
 	return true;
 
 }
-
-//construct a circle from three points into result
-//returns true on success, false if no circle can be formed
+/*
+ * Construct a circle from three points
+ *
+ * PARAMS:
+ * Point p1, p2, p3		-	Points for constructing the circle
+ * CircleType& result	-	Resulting circle
+ *
+ * RETURNS:
+ * bool 			-		true on success, false if no circle can be formed
+ *
+ */
 bool ConstructCircle(Point p1, Point p2, Point p3, CircleType &result){
 
 	Point tmpPoint;
