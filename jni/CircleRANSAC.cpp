@@ -55,7 +55,11 @@ bool CircleRANSAC(Mat& img, CircleType& result){
 	edge.at<uchar>(0,0) = 255;
 	findNonZero(edge, pointData);
 
-	for(size_t loops = 0; loops < 50; loops++){
+	//Check that there are enough points to try finding a circle
+	if(pointData.size() < minRadius * 3) return false;
+
+
+	for(size_t loops = 0; loops < 40; loops++){
 
 		//pick three random points and move them to top of pointData
 		//exit if there is a problem
@@ -88,7 +92,7 @@ bool CircleRANSAC(Mat& img, CircleType& result){
 		safeCrop(edge, cropped, rectToCrop);
 
 		Mat circleCandidate = Mat::zeros(cropped.rows, cropped.cols, CV_8UC1);
-		circle(circleCandidate, c.center, c.radius, 255, 3);
+		circle(circleCandidate, Point(circleCandidate.cols/2, circleCandidate.rows/2), c.radius, 255, 3);
 
 		bitwise_and(circleCandidate, cropped, circleCandidate);
 

@@ -18,7 +18,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 
 import mvs.speedroid.R;
@@ -37,8 +36,8 @@ public class SpeeDroidActivity extends AppCompatActivity implements CvCameraView
 
     private Mat                    lastFrame;
 
-    private CameraBridgeViewBase   mOpenCvCameraView;
-    private SharedPreferences	   speeDroidPrefs;
+    private SpeeDroidCameraView 	mOpenCvCameraView;
+    private SharedPreferences		speeDroidPrefs;
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -55,6 +54,7 @@ public class SpeeDroidActivity extends AppCompatActivity implements CvCameraView
                     
                     mOpenCvCameraView.enableFpsMeter();
                     mOpenCvCameraView.enableView();
+                    mOpenCvCameraView.setInfiniteFocus();
                 } break;
                 default:
                 {
@@ -79,7 +79,7 @@ public class SpeeDroidActivity extends AppCompatActivity implements CvCameraView
         speeDroidPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         
         
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.speedroid_surface_view);
+        mOpenCvCameraView = (SpeeDroidCameraView) findViewById(R.id.speedroid_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
     }
 

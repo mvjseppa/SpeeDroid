@@ -9,7 +9,12 @@
  *
  */
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "speedroidutils.hpp"
 
+using namespace std;
+using namespace cv;
 
 /*
  * Crops the ROI from src to dst. If ROI won't fit inside src, crop as much as possible.
@@ -19,11 +24,6 @@
  * Mat& dst				-	destination image
  * const Rect roi		-	region to crop
  */
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include "speedroidutils.hpp"
-
 void safeCrop(const Mat& src, Mat& dst, const Rect &roi){
 	Rect roiSafe = roi & Rect(0, 0, src.cols, src.rows);
 	dst = src(roiSafe);

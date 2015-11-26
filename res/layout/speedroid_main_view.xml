@@ -7,7 +7,7 @@
     android:layout_weight="2"
     tools:context=".SpeeDroidActivity" >
    
-	<org.opencv.android.JavaCameraView
+	<mvs.speedroid.SpeeDroidCameraView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/speedroid_surface_view" />
