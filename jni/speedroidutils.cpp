@@ -30,6 +30,14 @@ void safeCrop(const Mat& src, Mat& dst, const Rect &roi){
 }
 
 
+
+/*
+ * Find red pixels in src and set then white in dst
+ *
+ * PARAMS:
+ * Mat& src 	-	source image (RGB)
+ * Mat& dst		-	destination image (BIN)
+ */
 void findRed(Mat& src, Mat& dst){
 
 	Mat hsv, bin1, bin2;
@@ -45,6 +53,13 @@ void findRed(Mat& src, Mat& dst){
     bin2.release();
 }
 
+/*
+ * Find yellow pixels in src and set then white in dst
+ *
+ * PARAMS:
+ * Mat& src 	-	source image (RGB)
+ * Mat& dst		-	destination image (BIN)
+ */
 void findYellow(Mat& src, Mat& dst){
 	Mat hsv;
     cvtColor(src, hsv, COLOR_RGB2HSV);
@@ -52,6 +67,13 @@ void findYellow(Mat& src, Mat& dst){
     hsv.release();
 }
 
+/*
+ * Find black (dark gray) pixels in src and set then white in dst
+ *
+ * PARAMS:
+ * Mat& src 	-	source image (RGB)
+ * Mat& dst		-	destination image (BIN)
+ */
 void findBlack(Mat& src, Mat& dst){
 	Mat hsv;
     cvtColor(src, hsv, COLOR_RGB2HSV);
