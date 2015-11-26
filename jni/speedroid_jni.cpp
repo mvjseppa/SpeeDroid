@@ -41,36 +41,50 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(void);
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void);
 
+
+//init function to set globals
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(void){
+
 	srand(time(NULL));
 
 	detectedSigns[0] = Mat::zeros(Size(400,400), CV_8UC4);
 	detectedSigns[1] = Mat::zeros(Size(200,200), CV_8UC4);
 	detectedSigns[2] = Mat::zeros(Size(100,100), CV_8UC4);
+
+	LOGD("SpeeDroid JNI part initialized.");
 }
 
+//"destructor" to release globals
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void){
 	detectedSigns[0].release();
 	detectedSigns[1].release();
 	detectedSigns[2].release();
+
+	LOGD("SpeeDroid JNI part exit.");
 }
 
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba, jint roiWidth, jint roiHeight)
 {
-    Mat& rgb = *(Mat*)addrRgba;
+    //Get the image data from Java side pointer
+	Mat& rgb = *(Mat*)addrRgba;
 
+	//Buffer images
     Mat thresh;
     Mat mainRoiImg;
     Mat cropped;
 
     //We do the processing for to regions of interest.
-    //Roi dimensions are defined here.
+    //We create a ROI on both sides of the image to scan both sides of the road.
+    //Both ROIs have same dimensions.
     unsigned int roiW = (unsigned int)(rgb.cols/2 * (roiWidth / 100.0));
     unsigned int roiH = (unsigned int)(rgb.rows/2 * (roiHeight / 100.0));
 
+    //Timer for cooldown after successful detection
     static SimpleTimer resultCooldown = SimpleTimer();
 
+    //Circle to store RANSAC result
     CircleType c = {Point(0,0), 0};
+
 
     if(rgb.cols < 2*roiW || rgb.rows < roiH) return;
 
@@ -99,7 +113,7 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 			c.center.x = (c.center.x - roiW) + (rgb.cols - roiW);
 		}
 
-		LOGD("%d,%d,%d", c.center.x, c.center.y, c.radius);
+		//LOGD("%d,%d,%d", c.center.x, c.center.y, c.radius);
 
 		Point displace(c.radius, c.radius);
 		Rect roiSign(c.center-displace, c.center+displace);

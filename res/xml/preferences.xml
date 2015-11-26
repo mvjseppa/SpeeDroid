@@ -5,14 +5,12 @@
         android:key="roiWidth"
 		android:max="100"
     	android:defaultValue="50"
-		android:summary="% of image width used for sign detection."
-		android:title="Search area width"/>
+		android:title="@string/roiwidth_pref"/>
 
     <SeekBarPreference
         android:key="roiHeight"
 		android:max="100"
     	android:defaultValue="50"
-		android:summary="% of image height used for sign detection."
-		android:title="Search area height"/>    
+		android:title="@string/roiheight_pref"/>    
     
 </PreferenceScreen>

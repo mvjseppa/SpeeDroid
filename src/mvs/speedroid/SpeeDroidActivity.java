@@ -33,7 +33,7 @@ import android.support.v7.app.AppCompatActivity;
 
 
 public class SpeeDroidActivity extends AppCompatActivity implements CvCameraViewListener2 {
-    private static final String    TAG = "SpeeDroid::Activity";
+    private static final String    TAG = "mvs.speedroid";
 
     private Mat                    lastFrame;
 
