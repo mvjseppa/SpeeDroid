@@ -55,7 +55,7 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
                     
                     mOpenCvCameraView.enableFpsMeter();
                     mOpenCvCameraView.enableView();
-                    mOpenCvCameraView.setInfiniteFocus();
+                    mOpenCvCameraView.setCameraParams();
                 } break;
                 default:
                 {

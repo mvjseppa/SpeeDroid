@@ -30,6 +30,10 @@ void drawDetectedSigns(Mat& img);
 void findFeatures(Mat& img);
 bool detectFalsePositives(Mat signCandidate);
 
+#define SIGN1_SIZE	400
+#define SIGN2_SIZE	200
+#define SIGN3_SIZE	100
+
 static Mat detectedSigns[3];
 
 extern "C" {
@@ -43,9 +47,9 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(void){
 
 	srand(time(NULL));
 
-	detectedSigns[0] = Mat::zeros(Size(400,400), CV_8UC4);
-	detectedSigns[1] = Mat::zeros(Size(200,200), CV_8UC4);
-	detectedSigns[2] = Mat::zeros(Size(100,100), CV_8UC4);
+	detectedSigns[0] = Mat::zeros(Size(SIGN1_SIZE,SIGN1_SIZE), CV_8UC4);
+	detectedSigns[1] = Mat::zeros(Size(SIGN2_SIZE,SIGN2_SIZE), CV_8UC4);
+	detectedSigns[2] = Mat::zeros(Size(SIGN3_SIZE,SIGN3_SIZE), CV_8UC4);
 
 	LOGD("SpeeDroid JNI part initialized.");
 }
@@ -61,6 +65,8 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void)
 
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba, jint roiWidth, jint roiHeight)
 {
+
+
     //Get the image data from Java side pointer
 	Mat& rgb = *(Mat*)addrRgba;
 
@@ -68,6 +74,10 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
     Mat thresh;
     Mat mainRoiImg;
     Mat cropped;
+
+    //log the function execution time
+    clock_t startTime = clock();
+    clock_t endTime;
 
     //We do the processing for to regions of interest.
     //We create a ROI on both sides of the image to scan both sides of the road.
@@ -84,20 +94,20 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 
     if(rgb.cols < 2*roiW || rgb.rows < roiH) return;
 
-    //LOGD("rgb: %d, %d", rgb.cols, rgb.rows);
-
     //Copy the rois from input image
     mainRoiImg = Mat::zeros(Size(2*roiW,roiH), CV_8UC4);
 	rgb(Rect(0,0,roiW,roiH)).copyTo(mainRoiImg(Rect(0,0,roiW,roiH)));
 	rgb(Rect(rgb.cols-roiW, 0, roiW, roiH)).copyTo(mainRoiImg(Rect(roiW,0,roiW,roiH)));
 
-	//LOGD("mainroi: %d, %d", mainRoiImg.cols, mainRoiImg.rows);
 
 	//median blur on the rois to remove noise but preserve edges
-    medianBlur(mainRoiImg, mainRoiImg, 3);
+    //this is quite expensive operation!!
+    //medianBlur(mainRoiImg, mainRoiImg, 3);
 
     //Find red pixels in the image
     findRed(mainRoiImg, thresh);
+
+
 
     //Identify red circles as traffic sign candidates
     if (CircleRANSAC(thresh, c)){
@@ -136,11 +146,16 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
     //resize(bin2, rgb, Size(rgb.cols, rgb.rows));
 	//findYellow(rgb, rgb);
 	//cvtColor(rgb,rgb,COLOR_GRAY2RGBA);
+
 	drawDetectedSigns(rgb);
 
     thresh.release();
     mainRoiImg.release();
     cropped.release();
+
+    endTime = clock();
+    LOGD("JNI exec time: %lf", (double(endTime - startTime) / CLOCKS_PER_SEC));
+
 }
 } //extern "C"
 
@@ -185,29 +200,38 @@ bool detectFalsePositives(Mat signCandidate){
 }
 
 void updateDetectedSigns(Mat& newSign){
-	resize(detectedSigns[1], detectedSigns[2], Size(100, 100));
-	resize(detectedSigns[0], detectedSigns[1], Size(200, 200));
-	resize(newSign, detectedSigns[0], Size(400, 400));
+	resize(detectedSigns[1], detectedSigns[2], Size(SIGN3_SIZE, SIGN3_SIZE));
+	resize(detectedSigns[0], detectedSigns[1], Size(SIGN2_SIZE, SIGN2_SIZE));
+	resize(newSign, detectedSigns[0], Size(SIGN1_SIZE, SIGN1_SIZE));
 }
 
 void drawDetectedSigns(Mat& img){
 	Rect roiSign;
 	Mat mask;
 
-	mask = Mat::zeros(100,100,CV_8UC1);
-	circle(mask,Point(50,50),50,Scalar(255,255,255),-1);
-	roiSign = Rect(500, 980, 100, 100);
-	detectedSigns[2].copyTo(img(roiSign),mask);
+	//check that the image is big enough...
+	if(img.cols < 1280 || img.rows < 720) return;
 
-	mask = Mat::zeros(200,200,CV_8UC1);
-	circle(mask,Point(100,100),100,Scalar(255,255,255),-1);
-	roiSign = Rect(600, 880, 200, 200);
+	//Upper left corner of last detected sign goes here
+	Point p(img.cols-SIGN1_SIZE-5,img.rows-SIGN1_SIZE-5);
+
+	//Sign 1
+	mask = Mat::zeros(SIGN1_SIZE,SIGN1_SIZE,CV_8UC1);
+	circle(mask,Point(SIGN1_SIZE/2,SIGN1_SIZE/2),SIGN1_SIZE/2,Scalar(255,255,255),-1);
+	roiSign = Rect(p.x, p.y, SIGN1_SIZE, SIGN1_SIZE);
+	detectedSigns[0].copyTo(img(roiSign), mask);
+
+	//Sign 2
+	mask = Mat::zeros(SIGN2_SIZE,SIGN2_SIZE,CV_8UC1);
+	circle(mask,Point(SIGN2_SIZE/2,SIGN2_SIZE/2),SIGN2_SIZE/2,Scalar(255,255,255),-1);
+	roiSign = Rect(p.x-SIGN2_SIZE, p.y+SIGN2_SIZE/2, SIGN2_SIZE, SIGN2_SIZE);
 	detectedSigns[1].copyTo(img(roiSign), mask);
 
-	mask = Mat::zeros(400,400,CV_8UC1);
-	circle(mask,Point(200,200),200,Scalar(255,255,255),-1);
-	roiSign = Rect(800, 680, 400, 400);
-	detectedSigns[0].copyTo(img(roiSign), mask);
+	//Sign 3
+	mask = Mat::zeros(SIGN3_SIZE,SIGN3_SIZE,CV_8UC1);
+	circle(mask,Point(SIGN3_SIZE/2,SIGN3_SIZE/2),SIGN3_SIZE/2,Scalar(255,255,255),-1);
+	roiSign = Rect(p.x-SIGN2_SIZE-SIGN3_SIZE, p.y+SIGN2_SIZE/2+SIGN3_SIZE/2, SIGN3_SIZE, SIGN3_SIZE);
+	detectedSigns[2].copyTo(img(roiSign),mask);
 
 	mask.release();
 }

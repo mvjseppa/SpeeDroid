@@ -60,7 +60,6 @@ bool CircleRANSAC(cv::Mat& img, CircleType& result){
 	//Check that there are enough points to try finding a circle
 	if(pointData.size() < minRadius * 3) return false;
 
-
 	for(size_t loops = 0; loops < 40; loops++){
 
 		//pick three random points and move them to top of pointData
@@ -87,15 +86,17 @@ bool CircleRANSAC(cv::Mat& img, CircleType& result){
 		//Check percentage of candidate circle pixels that are white in the original image
 		inliers.clear();
 
+		//Crop the area around  the candidate circle
+		Mat cropped;
 		int cropSize = c.radius + 2;
 		Rect rectToCrop(c.center.x - cropSize, c.center.y - cropSize, cropSize*2, cropSize*2);
-		Mat cropped;
-
 		safeCrop(edge, cropped, rectToCrop);
 
+		//Draw the candidate circle
 		Mat circleCandidate = Mat::zeros(cropped.rows, cropped.cols, CV_8UC1);
 		circle(circleCandidate, Point(circleCandidate.cols/2, circleCandidate.rows/2), c.radius, 255, 3);
 
+		//use bitwise_and to identify inlier pixels
 		bitwise_and(circleCandidate, cropped, circleCandidate);
 
 		//OpenCV bug:
@@ -185,7 +186,7 @@ bool ConstructCircle(cv::Point p1, cv::Point p2, cv::Point p3, CircleType &resul
 	result.radius = 0;
 
 	//We need to calculate the slopes of lines p1p2 and p2p3
-	//Slope for vertical lines is infinite so we need to avoid that.
+	//Slope for a vertical line is infinite so we need to avoid that.
 
 	//If both p1p2 and p2p3 are vertical there can be no circle..
 	if(p1.x == p2.x && p2.x == p3.x) return false;

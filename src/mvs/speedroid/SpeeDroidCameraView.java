@@ -18,7 +18,7 @@ public class SpeeDroidCameraView extends JavaCameraView {
         super(context, attrs);
     }
     
-    public void setInfiniteFocus(){
+    public void setCameraParams(){
     	Camera.Parameters params = mCamera.getParameters();
     	
         List<String> FocusModes = params.getSupportedFocusModes();
@@ -27,8 +27,12 @@ public class SpeeDroidCameraView extends JavaCameraView {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
         }
 
+        params.setExposureCompensation(params.getMinExposureCompensation());
+        
         mCamera.setParameters(params);
     	
     }
 
+    
+    
 }
