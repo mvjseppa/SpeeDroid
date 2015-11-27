@@ -17,7 +17,7 @@
 #include <vector>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "CircleRANSAC.hpp"
-#include "speedroidutils.hpp"
+#include "speeDroidUtils.hpp"
 
 /*
  * RANSAC style circle detection algorithm
@@ -31,7 +31,9 @@
  * 							false if no circle or error occcurs
  *
  */
-bool CircleRANSAC(Mat& img, CircleType& result){
+bool CircleRANSAC(cv::Mat& img, CircleType& result){
+
+	using namespace cv;
 
 	const static unsigned int minRadius = 15;
 	const static unsigned int maxRadius = 100;
@@ -141,7 +143,7 @@ bool CircleRANSAC(Mat& img, CircleType& result){
  * RETURNS:
  * bool				-	true on success and false on error.
  */
-template <typename T> bool pickRandomSamples(vector<T> &v, size_t n){
+template <typename T> bool pickRandomSamples(std::vector<T> &v, size_t n){
 
 	size_t items = v.size();
 	T tmp;
@@ -174,7 +176,9 @@ template <typename T> bool pickRandomSamples(vector<T> &v, size_t n){
  * bool 			-		true on success, false if no circle can be formed
  *
  */
-bool ConstructCircle(Point p1, Point p2, Point p3, CircleType &result){
+bool ConstructCircle(cv::Point p1, cv::Point p2, cv::Point p3, CircleType &result){
+
+	using namespace cv;
 
 	Point tmpPoint;
 	result.center = Point(0,0);

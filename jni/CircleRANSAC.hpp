@@ -18,19 +18,16 @@
 #ifndef CIRCLERANSAC_HPP_
 #define CIRCLERANSAC_HPP_
 
-using namespace std;
-using namespace cv;
-
 #define POW2(x) ((x)*(x))
 
 typedef struct CircleType_ {
-	Point center;
+	cv::Point center;
 	unsigned int radius;
 } CircleType;
 
-bool CircleRANSAC(Mat& img, CircleType &result);
-bool ConstructCircle(Point p1, Point p2, Point p3, CircleType &result);
-template <typename T> bool pickRandomSamples(vector<T> &v, size_t n);
+bool CircleRANSAC(cv::Mat& img, CircleType &result);
+bool ConstructCircle(cv::Point p1, cv::Point p2, cv::Point p3, CircleType &result);
+template <typename T> bool pickRandomSamples(std::vector<T> &v, size_t n);
 
 #endif /* CIRCLERANSAC_HPP_ */
 

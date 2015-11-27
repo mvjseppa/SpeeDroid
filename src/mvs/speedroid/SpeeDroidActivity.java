@@ -30,7 +30,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-//import android.support.v7.app.AppCompatActivity;
 
 
 public class SpeeDroidActivity extends Activity implements CvCameraViewListener2 {
@@ -91,6 +90,7 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
         super.onPause();
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
+        DestroyJniPart();
     }
 
     @Override

@@ -14,13 +14,11 @@
 #ifndef SPEEDROIDUTILS_H_
 #define SPEEDROIDUTILS_H_
 
-using namespace std;
-using namespace cv;
 
-void safeCrop(const Mat& src, Mat& dst, const Rect &roi);
-void findRed(Mat& src, Mat& dst);
-void findYellow(Mat& src, Mat& dst);
-void findBlack(Mat& src, Mat& dst);
+void safeCrop(const cv::Mat& src, cv::Mat& dst, const cv::Rect &roi);
+void findRed(cv::Mat& src, cv::Mat& dst);
+void findYellow(cv::Mat& src, cv::Mat& dst);
+void findBlack(cv::Mat& src, cv::Mat& dst);
 
 
 #endif /* SPEEDROIDUTILS_H_ */

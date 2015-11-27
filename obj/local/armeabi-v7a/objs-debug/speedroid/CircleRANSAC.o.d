@@ -46,7 +46,7 @@ obj/local/armeabi-v7a/objs-debug/speedroid/CircleRANSAC.o: \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/imgproc/imgproc.hpp \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/imgproc/types_c.h \
  D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/core_c.h \
- jni/CircleRANSAC.hpp jni/speedroidutils.hpp
+ jni/CircleRANSAC.hpp jni/speeDroidUtils.hpp
 
 D:/NVPACK/android-ndk-r10d/platforms/android-9/arch-arm/usr/include/jni.h:
 
@@ -142,4 +142,4 @@ D:/NVPACK\OpenCV-2.4.8.2-Tegra-sdk\sdk\native\jni\/include/opencv2/core/core_c.h
 
 jni/CircleRANSAC.hpp:
 
-jni/speedroidutils.hpp:
+jni/speeDroidUtils.hpp:

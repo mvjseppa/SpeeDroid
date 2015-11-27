@@ -21,9 +21,8 @@
 #include "debugprint.hpp"
 #include "SimpleTimer.hpp"
 #include "CircleRANSAC.hpp"
-#include "speedroidutils.hpp"
+#include "speeDroidUtils.hpp"
 
-using namespace std;
 using namespace cv;
 
 void updateDetectedSigns(Mat& newSign);
