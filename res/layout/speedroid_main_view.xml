@@ -13,7 +13,7 @@
         android:id="@+id/speedroid_surface_view" />
 
 	<ImageButton
-	    android:id="@+id/imageButton1"
+	    android:id="@+id/imageButtonSettings"
 	    android:layout_width="70dp"
 	    android:layout_height="70dp"
 	    android:layout_gravity="bottom"

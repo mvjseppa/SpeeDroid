@@ -21,17 +21,19 @@ import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 
 import mvs.speedroid.R;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.app.AppCompatActivity;
 
 
-public class SpeeDroidActivity extends AppCompatActivity implements CvCameraViewListener2 {
+public class SpeeDroidActivity extends Activity implements CvCameraViewListener2 {
     private static final String    TAG = "mvs.speedroid";
 
     private Mat                    lastFrame;
@@ -122,13 +124,25 @@ public class SpeeDroidActivity extends AppCompatActivity implements CvCameraView
         int roiWidth = speeDroidPrefs.getInt("roiWidth", 0);
         int roiHeight = speeDroidPrefs.getInt("roiHeight", 0);
         
-        Log.i(TAG, "ROI size in prefs: " + Integer.toString(roiWidth) + "x" + Integer.toString(roiHeight));
+        //Log.i(TAG, "ROI size in prefs: " + Integer.toString(roiWidth) + "x" + Integer.toString(roiHeight));
         
         ProcessImage(lastFrame.getNativeObjAddr(), roiWidth, roiHeight);
 
         return lastFrame;
     }
     
+    
+    @Override
+    public boolean onKeyDown(int keycode, KeyEvent e) {
+        switch(keycode) {
+            case KeyEvent.KEYCODE_MENU:
+            	//Hardware menu button calls the onClick for on-screen settings button.
+                findViewById(R.id.imageButtonSettings).callOnClick();
+                return true;
+        }
+
+        return super.onKeyDown(keycode, e);
+    }
     
     public void settingsButtonClicked(View view){
     	Log.i(TAG, "Settings button clicked!");
