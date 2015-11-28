@@ -37,6 +37,7 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
 	private Mat mLastFrame;
 	private SpeeDroidCameraView mOpenCvCameraView;
 	private SharedPreferences mSpeeDroidPrefs;
+	private boolean mOpenCvInitialized = false;
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -44,6 +45,7 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i(TAG, "OpenCV loaded successfully");
+				mOpenCvInitialized = true;
 
 				// Load native library after(!) OpenCV initialization
 				System.loadLibrary("speedroid");
@@ -56,6 +58,9 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
 			}
 				break;
 			default: {
+				if(mOpenCvCameraView != null){
+					mOpenCvCameraView.disableView();
+				}
 				super.onManagerConnected(status);
 			}
 				break;
@@ -87,7 +92,7 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
 		super.onPause();
 		if (mOpenCvCameraView != null)
 			mOpenCvCameraView.disableView();
-		DestroyJniPart();
+		if(mOpenCvInitialized) DestroyJniPart();
 	}
 
 	@Override
@@ -101,7 +106,7 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
 		super.onDestroy();
 		if (mOpenCvCameraView != null)
 			mOpenCvCameraView.disableView();
-		DestroyJniPart();
+		if(mOpenCvInitialized) DestroyJniPart();
 	}
 
 	public void onCameraViewStarted(int width, int height) {
