@@ -28,7 +28,7 @@ using namespace cv;
 void updateDetectedSigns(Mat& newSign);
 void drawDetectedSigns(Mat& img);
 void findFeatures(Mat& img);
-bool detectFalsePositives(Mat signCandidate);
+bool detectFalsePositives(Mat& signCandidate);
 
 #define SIGN1_SIZE	400
 #define SIGN2_SIZE	200
@@ -38,12 +38,18 @@ static Mat detectedSigns[3];
 
 extern "C" {
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba, jint roiWidth, jint roiHeight);
-JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(void);
-JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void);
+JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(JNIEnv*, jobject);
+JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(JNIEnv*, jobject);
 
 
-//init function to set globals
-JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(void){
+/*
+ * Initialize SpeeDroid JNI module. Set the global Mat objects to zeros.
+ *
+ * PARAMS:
+ * JNIEnv*			-	JNI function access pointer (not used)
+ * jobject			-	Java "this" (not used)
+ */
+JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(JNIEnv*, jobject){
 
 	srand(time(NULL));
 
@@ -54,8 +60,14 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_InitJniPart(void){
 	LOGD("SpeeDroid JNI part initialized.");
 }
 
-//"destructor" to release globals
-JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void){
+/*
+ * "Destructor" for SpeeDroid JNI module. Releases the global Mat objects.
+ *
+ * PARAMS:
+ * JNIEnv*			-	JNI function access pointer (not used)
+ * jobject			-	Java "this" (not used)
+ */
+JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(JNIEnv*, jobject){
 	detectedSigns[0].release();
 	detectedSigns[1].release();
 	detectedSigns[2].release();
@@ -63,10 +75,19 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_DestroyJniPart(void)
 	LOGD("SpeeDroid JNI part exit.");
 }
 
+
+/*
+ * SpeeDroid image processing is done here.
+ *
+ * PARAMS:
+ * JNIEnv*			-	JNI function access pointer (not used)
+ * jobject			-	Java "this" (not used)
+ * jlong addrRgba	-	Memory address of frame to process (OpenCV Mat)
+ * jint				-	ROI width as percentage of image
+ * jint				-	ROI height as percentage of
+ */
 JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*, jobject, jlong addrRgba, jint roiWidth, jint roiHeight)
 {
-
-
     //Get the image data from Java side pointer
 	Mat& rgb = *(Mat*)addrRgba;
 
@@ -91,7 +112,6 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
     //Circle to store RANSAC result
     CircleType c = {Point(0,0), 0};
 
-
     if(rgb.cols < 2*roiW || rgb.rows < roiH) return;
 
     //Copy the rois from input image
@@ -107,25 +127,18 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
     //Find red pixels in the image
     findRed(mainRoiImg, thresh);
 
-
-
     //Identify red circles as traffic sign candidates
     if (CircleRANSAC(thresh, c)){
-
-    	//bin1.copyTo(rgb(Rect(0,0,bin1.cols, bin1.rows)));
 
     	//correct the coordinate if the circle center is in roi 2
 		if(c.center.x >= roiW){
 			c.center.x = (c.center.x - roiW) + (rgb.cols - roiW);
 		}
 
-		//LOGD("%d,%d,%d", c.center.x, c.center.y, c.radius);
-
 		Point displace(c.radius, c.radius);
 		Rect roiSign(c.center-displace, c.center+displace);
 
 		safeCrop(rgb, cropped, roiSign);
-
 
 		//update results if the sign candidate is accepted and
 		//2 seconds has elapsed since last detection
@@ -136,17 +149,15 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 			resultCooldown.startTimer(2.0);
 		}
 
-		//circle(rgb, c.center, c.radius, Scalar(255,0,255), 4);
+		//Draw RANSAC result on output Mat
+		circle(rgb, c.center, c.radius, Scalar(0,255,255), 4);
     }
 
+    //Draw the ROI on the output Mat
 	rectangle(rgb, Rect(0,0,roiW,roiH), Scalar(0,0,255), 2);
 	rectangle(rgb, Rect(rgb.cols-roiW,0,roiW,roiH), Scalar(0,0,255), 2);
 
-    //cvtColor(bin2, bin2, COLOR_GRAY2RGBA);
-    //resize(bin2, rgb, Size(rgb.cols, rgb.rows));
-	//findYellow(rgb, rgb);
-	//cvtColor(rgb,rgb,COLOR_GRAY2RGBA);
-
+	//Draw detection results to output Mat
 	drawDetectedSigns(rgb);
 
     thresh.release();
@@ -159,9 +170,17 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
 }
 } //extern "C"
 
-//some checks to identify most common false positives.
-//returns true if a sign candidate is identified as a false positive.
-bool detectFalsePositives(Mat signCandidate){
+/*
+ * Some checks to filter out most common false positives in speed sign detection.
+ *
+ * PARAMS:
+ * Mat& signCandidate	-	cropped image that potentially contains a speed sign
+ *
+ * RETURNS:
+ * bool		-	true if a sign candidate is identified as a false positive
+ * 				false otherwise
+ */
+bool detectFalsePositives(Mat& signCandidate){
 	Mat bin, edge;
 	bool retval = false;
 
@@ -169,13 +188,16 @@ bool detectFalsePositives(Mat signCandidate){
 	findYellow(signCandidate, bin);
 	if(countNonZero(bin) < 0.3 * bin.rows * bin.cols) retval = true;
 
-	//invert the pixels
-	bitwise_not(bin,bin);
+	/*
 
+	//TODO:
 	//find non-yellow blobs in the image
 	//try to exclude brick walls, bushes etc based on blob count
 
-/*	int largest_area=0;
+	//invert the pixels
+	bitwise_not(bin,bin);
+
+	int largest_area=0;
 	int largest_contour_index=0;
 
 	vector< vector<Point> > contours; // Vector for storing contour
@@ -191,7 +213,7 @@ bool detectFalsePositives(Mat signCandidate){
 			//bounding_rect=boundingRect(contours[i]); // Find the bounding rectangle for biggest contour
 		}
 	}
-*/
+	*/
 
 	bin.release();
 	edge.release();
@@ -199,12 +221,25 @@ bool detectFalsePositives(Mat signCandidate){
 	return retval;
 }
 
+
+/*
+ * Store an identified sign into global image buffer.
+ *
+ * PARAMS:
+ * Mat& newSign		-	image to store
+ */
 void updateDetectedSigns(Mat& newSign){
 	resize(detectedSigns[1], detectedSigns[2], Size(SIGN3_SIZE, SIGN3_SIZE));
 	resize(detectedSigns[0], detectedSigns[1], Size(SIGN2_SIZE, SIGN2_SIZE));
 	resize(newSign, detectedSigns[0], Size(SIGN1_SIZE, SIGN1_SIZE));
 }
 
+/*
+ * Copy the detection results from global buffers to img.
+ *
+ * PARAMS:
+ * Mat& img		-	Detection results are drawn on this image
+ */
 void drawDetectedSigns(Mat& img){
 	Rect roiSign;
 	Mat mask;
@@ -236,6 +271,13 @@ void drawDetectedSigns(Mat& img){
 	mask.release();
 }
 
+/*
+ * Extract FAST features on the image.
+ * TODO: Try to identify the detected sign using the features.
+ *
+ * PARAMS:
+ * Mat& img		-	Detect FAST features on this image and mark them with circles.
+ */
 void findFeatures(Mat& img){
 
 	vector<KeyPoint> features;

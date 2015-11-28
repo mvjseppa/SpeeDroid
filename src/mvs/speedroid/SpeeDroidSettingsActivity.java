@@ -15,14 +15,13 @@ import android.os.Bundle;
 
 public class SpeeDroidSettingsActivity extends Activity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        // Display the fragment as the main content.
-        getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new SpeeDroidSettingsFragment())
-                .commit();
-    }
-	
+		// Display the fragment as the main content.
+		getFragmentManager().beginTransaction()
+				.replace(android.R.id.content, new SpeeDroidSettingsFragment())
+				.commit();
+	}
 }

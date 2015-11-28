@@ -15,6 +15,9 @@
 
 #define US_PER_SEC	1000000.0
 
+/*
+ * A timer that can be polled to check if a time period has elapsed.
+ */
 class SimpleTimer{
 private:
 	struct timeval startTime;
