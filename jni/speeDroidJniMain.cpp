@@ -106,19 +106,31 @@ JNIEXPORT void JNICALL Java_mvs_speedroid_SpeeDroidActivity_ProcessImage(JNIEnv*
     unsigned int roiW = (unsigned int)(rgb.cols/2 * (roiWidth / 100.0));
     unsigned int roiH = (unsigned int)(rgb.rows * (roiHeight / 100.0));
 
+    if(roiW == 0){
+    	LOGD("ROI width set to 0!");
+    	return;
+    }
+
+    if(roiH == 0){
+    	LOGD("ROI height set to 0!");
+    	return;
+    }
+
     //Timer for cooldown after successful detection
     static SimpleTimer resultCooldown = SimpleTimer();
 
     //Circle to store RANSAC result
     CircleType c = {Point(0,0), 0};
 
-    if(rgb.cols < 2*roiW || rgb.rows < roiH) return;
+    if(rgb.cols < 2*roiW || rgb.rows < roiH){
+    	LOGD("Too small frame!");
+    	return;
+    }
 
     //Copy the rois from input image
     mainRoiImg = Mat::zeros(Size(2*roiW,roiH), CV_8UC4);
 	rgb(Rect(0,0,roiW,roiH)).copyTo(mainRoiImg(Rect(0,0,roiW,roiH)));
 	rgb(Rect(rgb.cols-roiW, 0, roiW, roiH)).copyTo(mainRoiImg(Rect(roiW,0,roiW,roiH)));
-
 
 	//median blur on the rois to remove noise but preserve edges
     //this is quite expensive operation!!
@@ -216,7 +228,7 @@ bool detectFalsePositives(Mat& signCandidate){
 	*/
 
 	bin.release();
-	edge.release();
+	//edge.release();
 
 	return retval;
 }

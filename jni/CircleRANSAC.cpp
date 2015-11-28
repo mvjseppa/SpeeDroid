@@ -8,8 +8,6 @@
  * See LICENSE.md file for licensing details.
  *
  */
-
-
 #include <jni.h>
 #include <opencv2/core/core.hpp>
 #include <cstdlib>
@@ -116,19 +114,6 @@ bool CircleRANSAC(cv::Mat& img, CircleType& result){
 			break;
 		}
 	}
-
-	/*
-	if(retval){
-		cvtColor(edge, img, COLOR_GRAY2RGBA);
-		circle(img, result.center, result.radius, Scalar(255,0,0));
-
-		for(size_t i=0; i<inliers.size(); i++){
-			Vec4b greenPixel;
-			greenPixel.val[1] = 255;
-			img.at<Vec4b>(inliers[i]) = greenPixel;
-		}
-	}
-	*/
 
 	edge.release();
 	return retval;

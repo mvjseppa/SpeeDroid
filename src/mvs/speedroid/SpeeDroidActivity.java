@@ -149,8 +149,7 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
 
 	}
 
-	public native void ProcessImage(long matAddrRgba, int roiWidth,
-			int roiHeight);
+	public native void ProcessImage(long matAddrRgba, int roiWidth, int roiHeight);
 
 	public native void InitJniPart();
 
