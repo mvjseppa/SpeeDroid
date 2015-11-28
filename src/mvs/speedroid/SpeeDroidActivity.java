@@ -75,8 +75,9 @@ public class SpeeDroidActivity extends Activity implements CvCameraViewListener2
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.speedroid_main_view);
 
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		mSpeeDroidPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
+		
 		mOpenCvCameraView = (SpeeDroidCameraView) findViewById(R.id.speedroid_surface_view);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 	}
